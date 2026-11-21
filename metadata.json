@@ -1,0 +1,6 @@
+{
+  "name": "NS-Photocard",
+  "description": "নতুন সিলেট (natunsylhet24.com)-এর জন্য আধুনিক সম্পাদকীয় নিউজ ফটো কার্ড জেনারেটর। লিংক পেস্ট করলেই পূর্ণ মানের আসল ছবি ও শিরোনামসহ ফটো কার্ড তৈরি ও এক ক্লিকে ডাউনলোড করুন।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
