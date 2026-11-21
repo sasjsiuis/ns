@@ -1,5 +1,5 @@
-import { validateOutboundUrl } from './urlSecurity';
-import { parseNewsArticleHtml, stripNatunSylhetBannerPath } from './newsParser';
+import { validateOutboundUrl } from './urlSecurity.js';
+import { parseNewsArticleHtml, stripNatunSylhetBannerPath } from './newsParser.js';
 
 const BROWSER_USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';

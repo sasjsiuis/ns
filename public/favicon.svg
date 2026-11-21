@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <clipPath id="tile">
+      <rect x="2" y="2" width="60" height="60" rx="14" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect x="2" y="2" width="60" height="60" fill="#FAF8F3" />
+    <!-- Top Natun Sylhet dual editorial brand stripe -->
+    <rect x="2" y="2" width="38" height="8" fill="#B91C1C" />
+    <rect x="40" y="2" width="22" height="8" fill="#047857" />
+    <!-- Crisp NS editorial monogram -->
+    <text
+      x="11"
+      y="45"
+      font-family="system-ui, -apple-system, 'Segoe UI', sans-serif"
+      font-weight="800"
+      font-size="29"
+      letter-spacing="-1.5"
+      fill="#B91C1C"
+    >N</text>
+    <text
+      x="34"
+      y="45"
+      font-family="system-ui, -apple-system, 'Segoe UI', sans-serif"
+      font-weight="800"
+      font-size="29"
+      letter-spacing="-1"
+      fill="#047857"
+    >S</text>
+    <!-- Bottom fine editorial rule -->
+    <rect x="11" y="51" width="42" height="2.5" rx="1.25" fill="#161513" />
+  </g>
+  <rect
+    x="2"
+    y="2"
+    width="60"
+    height="60"
+    rx="14"
+    fill="none"
+    stroke="#D5CEC2"
+    stroke-width="2"
+  />
+</svg>

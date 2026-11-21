@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { fetchNewsArticle } from '../src/utils/newsFetchService';
+import { fetchNewsArticle } from '../src/utils/newsFetchService.js';
 
 type VercelRequest = IncomingMessage & {
   query?: Record<string, string | string[] | undefined>;
@@ -18,11 +18,17 @@ function getQueryUrl(req: VercelRequest): string {
 }
 
 export default async function handler(req: VercelRequest, res: ServerResponse) {
-  const rawUrl = getQueryUrl(req);
-  const result = await fetchNewsArticle(rawUrl);
+  try {
+    const rawUrl = getQueryUrl(req);
+    const result = await fetchNewsArticle(rawUrl);
 
-  res.statusCode = result.status;
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.end(JSON.stringify(result.body));
+    res.statusCode = result.status;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.end(JSON.stringify(result.body));
+  } catch {
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.end(JSON.stringify({ error: 'সার্ভারে সাময়িক সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।' }));
+  }
 }

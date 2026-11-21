@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer as createViteServer } from 'vite';
-import { fetchNewsArticle, fetchProxiedImage } from './src/utils/newsFetchService';
+import { fetchNewsArticle, fetchProxiedImage } from './src/utils/newsFetchService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
