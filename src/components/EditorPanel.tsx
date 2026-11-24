@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import {
   BACKDROP_SWATCHES,
+  COMMENT_NOTE_PRESETS,
   DEFAULT_CROP,
   DEFAULT_PHOTO_EDIT,
   HEADLINE_FONTS,
@@ -939,6 +940,76 @@ export function EditorPanel({
                   {cat}
                 </button>
               ))}
+            </div>
+
+            <hr className="border-[#EFEAE0]" />
+
+            {/* Bottom-Center Comment Callout Control */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="comment-note-input"
+                  className="text-xs font-semibold text-[#161513]"
+                >
+                  কার্ডের নিচের কমেন্ট বার্তা
+                </label>
+                <label className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-[#666057]">
+                  <input
+                    type="checkbox"
+                    checked={typography.showCommentNote}
+                    onChange={(e) =>
+                      onChangeTypography((prev) => ({
+                        ...prev,
+                        showCommentNote: e.target.checked,
+                      }))
+                    }
+                    className="h-3.5 w-3.5 accent-[#B91C1C]"
+                  />
+                  দেখান
+                </label>
+              </div>
+
+              <input
+                id="comment-note-input"
+                type="text"
+                value={typography.commentNoteText}
+                disabled={!typography.showCommentNote}
+                onChange={(e) =>
+                  onChangeTypography((prev) => ({
+                    ...prev,
+                    commentNoteText: e.target.value,
+                  }))
+                }
+                placeholder="বিস্তারিত কমেন্টে"
+                className="h-10 w-full rounded-lg border border-[#D4CCC0] bg-white px-3 text-sm text-[#161513] focus:border-[#161513] focus:outline-none disabled:bg-[#F5F2EC] disabled:text-[#8E867B]"
+              />
+
+              <div className="flex flex-wrap gap-1.5">
+                {COMMENT_NOTE_PRESETS.map((preset) => {
+                  const active =
+                    typography.showCommentNote && typography.commentNoteText.trim() === preset;
+                  return (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() =>
+                        onChangeTypography((prev) => ({
+                          ...prev,
+                          showCommentNote: true,
+                          commentNoteText: preset,
+                        }))
+                      }
+                      className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                        active
+                          ? 'border-[#161513] bg-[#161513] text-white'
+                          : 'border-[#E0D9CD] bg-[#FAF8F4] text-[#57534E] hover:border-[#B8B0A2]'
+                      }`}
+                    >
+                      {preset}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </>
         )}

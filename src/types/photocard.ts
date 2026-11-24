@@ -132,7 +132,17 @@ export interface CardTypographyOptions {
   headlineFont: HeadlineFontId;
   /** 'auto' chooses best zone automatically; '1' fits strictly on 1 line; '2' balances cleanly into 2 lines */
   headlineLineMode: HeadlineLineMode;
+  /** Whether to show the bottom-centered comment callout (e.g. 'বিস্তারিত কমেন্টে') */
+  showCommentNote: boolean;
+  /** Editable bottom-centered callout text */
+  commentNoteText: string;
 }
+
+export const COMMENT_NOTE_PRESETS: string[] = [
+  'বিস্তারিত কমেন্টে',
+  'বিস্তারিত প্রথম কমেন্টে',
+  'পুরো খবর কমেন্টে',
+];
 
 export const DEFAULT_CROP: CropInsets = {
   top: 0,
@@ -163,6 +173,8 @@ export const DEFAULT_TYPOGRAPHY: CardTypographyOptions = {
   showDate: true,
   headlineFont: 'hind-siliguri',
   headlineLineMode: 'auto',
+  showCommentNote: true,
+  commentNoteText: 'বিস্তারিত কমেন্টে',
 };
 
 export interface CardStyleMeta {

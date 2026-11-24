@@ -30,7 +30,7 @@ export function getPhotoFrameRect(style: CardStyleId, aspect: CardAspectRatio): 
     return { x: 44, y: 44, w: 992, h: isTall ? 780 : 582 };
   }
   // editorial-gallery (headline top, photo bottom inside symmetrical archival mat)
-  return { x: 66, y: isTall ? 416 : 382, w: 948, h: isTall ? 794 : 560 };
+  return { x: 66, y: isTall ? 412 : 378, w: 948, h: isTall ? 786 : 552 };
 }
 
 function traceRoundedRect(
@@ -247,6 +247,107 @@ function drawLogo(
   ctx.restore();
 }
 
+function drawCommentNoteDivider(
+  ctx: CanvasRenderingContext2D,
+  options: {
+    centerX: number;
+    centerY: number;
+    lineLeftX: number;
+    lineRightX: number;
+    text: string;
+    lineColor: string;
+    badgeBg: string;
+    badgeBorder: string;
+    iconColor: string;
+    textColor: string;
+  }
+) {
+  const {
+    centerX,
+    centerY,
+    lineLeftX,
+    lineRightX,
+    text,
+    lineColor,
+    badgeBg,
+    badgeBorder,
+    iconColor,
+    textColor,
+  } = options;
+
+  ctx.save();
+  let fontSize = 20;
+  ctx.font = `700 ${fontSize}px "Hind Siliguri", sans-serif`;
+  let textW = ctx.measureText(text).width;
+
+  const iconW = 20;
+  const iconH = 15;
+  const gap = 9;
+  const padX = 18;
+  const maxBadgeW = Math.max(160, lineRightX - lineLeftX - 32);
+  while (padX * 2 + iconW + gap + textW > maxBadgeW && fontSize > 14) {
+    fontSize -= 1;
+    ctx.font = `700 ${fontSize}px "Hind Siliguri", sans-serif`;
+    textW = ctx.measureText(text).width;
+  }
+
+  const badgeH = 38;
+  const badgeW = Math.min(maxBadgeW, padX * 2 + iconW + gap + textW);
+  const badgeX = centerX - badgeW / 2;
+  const badgeY = centerY - badgeH / 2;
+
+  // Flanking editorial hairlines
+  const ruleGap = 16;
+  ctx.fillStyle = lineColor;
+  const leftRuleW = badgeX - ruleGap - lineLeftX;
+  if (leftRuleW > 8) {
+    ctx.fillRect(lineLeftX, centerY - 0.75, leftRuleW, 1.5);
+  }
+  const rightRuleStart = badgeX + badgeW + ruleGap;
+  const rightRuleW = lineRightX - rightRuleStart;
+  if (rightRuleW > 8) {
+    ctx.fillRect(rightRuleStart, centerY - 0.75, rightRuleW, 1.5);
+  }
+
+  // Crisp centered plaque
+  ctx.fillStyle = badgeBg;
+  traceRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
+  ctx.fill();
+  ctx.strokeStyle = badgeBorder;
+  ctx.lineWidth = 1.25;
+  ctx.stroke();
+
+  // Vector speech-bubble comment icon
+  const ix = badgeX + padX;
+  const iy = centerY - iconH / 2 - 1;
+  ctx.fillStyle = iconColor;
+  traceRoundedRect(ctx, ix, iy, iconW, iconH, 4.5);
+  ctx.fill();
+
+  // Speech bubble tail
+  ctx.beginPath();
+  ctx.moveTo(ix + 4, iy + iconH - 1);
+  ctx.lineTo(ix + 3, iy + iconH + 4.5);
+  ctx.lineTo(ix + 10, iy + iconH - 1);
+  ctx.closePath();
+  ctx.fill();
+
+  // Three subtle dots inside bubble
+  ctx.fillStyle = badgeBg;
+  for (let d = 0; d < 3; d += 1) {
+    ctx.beginPath();
+    ctx.arc(ix + 5.5 + d * 4.5, iy + iconH / 2, 1.35, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Centered Bengali label
+  ctx.fillStyle = textColor;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, ix + iconW + gap, centerY + 1);
+  ctx.restore();
+}
+
 function getHeadlineFontMeta(fontId: CardTypographyOptions['headlineFont']) {
   return HEADLINE_FONTS.find((f) => f.id === fontId) ?? HEADLINE_FONTS[0];
 }
@@ -294,6 +395,10 @@ export function renderPhotocard(params: RenderPhotocardParams): void {
   if (typography.showDate && article.dateText.trim()) {
     showMetaParts.push(article.dateText.trim());
   }
+
+  const commentNote = typography.showCommentNote
+    ? (typography.commentNoteText || '').trim()
+    : '';
 
   const frame = getPhotoFrameRect(style, aspect);
 
@@ -363,9 +468,10 @@ export function renderPhotocard(params: RenderPhotocardParams): void {
     ctx.strokeRect(frame.x, frame.y, frame.w, frame.h);
 
     // Headline Block below photo
-    const headlineTopY = frame.y + frame.h + 32;
+    const headlineTopY = frame.y + frame.h + 30;
+    const commentRowY = height - 96;
     const footerY = height - 76;
-    const availableH = footerY - headlineTopY - 28;
+    const availableH = (commentNote ? commentRowY - 30 : footerY - 28) - headlineTopY;
 
     // Short crimson + emerald editorial accent bar
     ctx.fillStyle = '#B91C1C';
@@ -399,20 +505,35 @@ export function renderPhotocard(params: RenderPhotocardParams): void {
     });
     ctx.restore();
 
-    // Clean Editorial Footer
-    ctx.fillStyle = '#D8D1C4';
-    ctx.fillRect(56, footerY, width - 112, 1.5);
+    // Bottom-center comment callout + clean editorial colophon
+    if (commentNote) {
+      drawCommentNoteDivider(ctx, {
+        centerX: width / 2,
+        centerY: commentRowY,
+        lineLeftX: 56,
+        lineRightX: width - 56,
+        text: commentNote,
+        lineColor: '#D8D1C4',
+        badgeBg: '#FFFFFF',
+        badgeBorder: '#D4CCC0',
+        iconColor: '#B91C1C',
+        textColor: '#141311',
+      });
+    } else {
+      ctx.fillStyle = '#D8D1C4';
+      ctx.fillRect(56, footerY, width - 112, 1.5);
+    }
 
     ctx.save();
     ctx.textBaseline = 'middle';
-    const footTextY = footerY + 34;
+    const footTextY = commentNote ? height - 46 : footerY + 34;
 
-    ctx.font = '700 22px "Hind Siliguri", sans-serif';
+    ctx.font = '700 21px "Hind Siliguri", sans-serif';
     ctx.fillStyle = '#B91C1C';
     ctx.textAlign = 'left';
     ctx.fillText('natunsylhet24.com', 56, footTextY);
 
-    ctx.font = '500 20px "Hind Siliguri", sans-serif';
+    ctx.font = '500 19px "Hind Siliguri", sans-serif';
     ctx.fillStyle = '#57534E';
     ctx.textAlign = 'right';
     ctx.fillText('সিলেটের প্রথম মাল্টিমিডিয়া নিউজ পোর্টাল', width - 56, footTextY);
@@ -479,9 +600,10 @@ export function renderPhotocard(params: RenderPhotocardParams): void {
     }
 
     // Lower Dark Editorial Plinth
-    const plinthTopY = frame.y + frame.h + 34;
+    const plinthTopY = frame.y + frame.h + 32;
+    const commentRowY = height - 98;
     const footerY = height - 76;
-    const availableH = footerY - plinthTopY - 26;
+    const availableH = (commentNote ? commentRowY - 30 : footerY - 26) - plinthTopY;
 
     // Dual-tone editorial rule (Crimson + Emerald)
     ctx.fillStyle = '#DC2626';
@@ -515,22 +637,37 @@ export function renderPhotocard(params: RenderPhotocardParams): void {
     });
     ctx.restore();
 
-    // Minimal Dark Editorial Footer
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
-    ctx.fillRect(56, footerY, width - 112, 1);
+    // Bottom-center comment callout + minimal dark editorial footer
+    if (commentNote) {
+      drawCommentNoteDivider(ctx, {
+        centerX: width / 2,
+        centerY: commentRowY,
+        lineLeftX: 56,
+        lineRightX: width - 56,
+        text: commentNote,
+        lineColor: 'rgba(255, 255, 255, 0.16)',
+        badgeBg: '#191D24',
+        badgeBorder: 'rgba(255, 255, 255, 0.22)',
+        iconColor: '#F87171',
+        textColor: '#FAF9F6',
+      });
+    } else {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+      ctx.fillRect(56, footerY, width - 112, 1);
+    }
 
     ctx.save();
     ctx.textBaseline = 'middle';
-    const footY = footerY + 34;
-    ctx.font = '700 22px "Hind Siliguri", sans-serif';
+    const footY = commentNote ? height - 47 : footerY + 34;
+    ctx.font = '700 21px "Hind Siliguri", sans-serif';
     ctx.fillStyle = '#F87171';
     ctx.textAlign = 'left';
     ctx.fillText('natunsylhet24.com', 56, footY);
 
-    ctx.font = '500 20px "Hind Siliguri", sans-serif';
+    ctx.font = '500 19px "Hind Siliguri", sans-serif';
     ctx.fillStyle = '#A1A1AA';
     ctx.textAlign = 'right';
-    ctx.fillText('বিস্তারিত পড়ুন নতুন সিলেটে', width - 56, footY);
+    ctx.fillText('সিলেটের প্রথম মাল্টিমিডিয়া নিউজ পোর্টাল', width - 56, footY);
     ctx.restore();
 
     // Bottom subtle accent bar
@@ -634,8 +771,26 @@ export function renderPhotocard(params: RenderPhotocardParams): void {
   ctx.strokeRect(frame.x, frame.y, frame.w, frame.h);
 
   // Institutional Deep Sylhet Emerald Footer Band
-  const bandH = 68;
+  const bandH = 66;
   const bandY = height - bandH;
+  const matBottom = frame.y + frame.h + matPad;
+
+  // Centered Comment Callout cleanly nestled between framed photo mat and emerald footer band
+  if (commentNote) {
+    drawCommentNoteDivider(ctx, {
+      centerX: width / 2,
+      centerY: Math.round((matBottom + bandY) / 2),
+      lineLeftX: 66,
+      lineRightX: width - 66,
+      text: commentNote,
+      lineColor: '#DFD8CA',
+      badgeBg: '#FAF8F4',
+      badgeBorder: '#D5CCB9',
+      iconColor: '#047857',
+      textColor: '#111827',
+    });
+  }
+
   ctx.fillStyle = '#064E3B';
   ctx.fillRect(0, bandY, width, bandH);
 
@@ -647,7 +802,7 @@ export function renderPhotocard(params: RenderPhotocardParams): void {
   ctx.textBaseline = 'middle';
   const bandMidY = bandY + bandH / 2 + 1;
 
-  ctx.font = '700 23px "Hind Siliguri", sans-serif';
+  ctx.font = '700 22px "Hind Siliguri", sans-serif';
   ctx.fillStyle = '#FFFFFF';
   ctx.textAlign = 'left';
   ctx.fillText('natunsylhet24.com', 56, bandMidY);

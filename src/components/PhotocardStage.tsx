@@ -277,6 +277,7 @@ export function PhotocardStage({
             data-radius={edit.borderRadius}
             data-font={typography.headlineFont}
             data-linemode={typography.headlineLineMode}
+            data-comment-note={typography.showCommentNote ? typography.commentNoteText : 'off'}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={endDrag}
